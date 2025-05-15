@@ -1,0 +1,2 @@
+add_executable(shoot MACOSX_BUNDLE shoot.cpp)
+target_link_libraries(shoot fssimplewindow)

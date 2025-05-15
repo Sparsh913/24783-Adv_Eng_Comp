@@ -1,0 +1,2 @@
+add_executable(floodfill MACOSX_BUNDLE floodfill.cpp)
+target_link_libraries(floodfill fssimplewindow)
