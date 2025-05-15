@@ -1,0 +1,1 @@
+/usr/bin/c++    -rdynamic CMakeFiles/playwav.dir/playwav.cpp.o  -o playwav  ../../../fssimplewindow/src/libfssimplewindow.a ../libyssimplesound.a ../libyssimplesound_linux_alsa.a -lpthread -lGL -lGLU -lX11 -lasound 

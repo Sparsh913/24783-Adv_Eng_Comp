@@ -1,0 +1,193 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <stdlib.h> // #include <cstdlib> ->  std::srand(std::time(NULL));
+#include <time.h>
+#include <cstdio>
+
+#include "fssimplewindow.h"
+#include "ysglfontdata.h"
+
+#include "bintree.h"
+
+
+
+const int DY=40;
+
+void RenderTreeNode(
+   const BinaryTree<int,int> &tree,
+   typename BinaryTree<int,int>::NodeHandle ndHd,
+   int x0,int x1,int y0,int prevX,int prevY,
+   typename BinaryTree<int,int>::NodeHandle highlight)
+{
+	if(true==ndHd.IsNull())
+	{
+		return;
+	}
+
+	if(ndHd==highlight)
+	{
+		glColor3f(0.5,0.5,0.5);
+		glBegin(GL_TRIANGLE_FAN);
+		glVertex2i(x0,y0);
+		glVertex2i(x1,y0);
+		glVertex2i(x1,y0+DY);
+		glVertex2i(x0,y0+DY);
+		glEnd();
+		glColor3f(0,0,0);
+	}
+
+	int cx=(x0+x1)/2;
+	int cy=y0+DY/2;
+
+	char str[256];
+	sprintf(str,"%d(%d)",tree.GetKey(ndHd),tree.GetHeight(ndHd));
+	glRasterPos2i(cx,cy);
+	YsGlDrawFontBitmap10x14(str);
+
+	glBegin(GL_LINES);
+	glVertex2i(prevX,prevY);
+	glVertex2i(cx,cy);
+	glEnd();
+
+	RenderTreeNode(tree,tree.LeftOf(ndHd),x0,cx,y0+DY,cx,cy,highlight);
+	RenderTreeNode(tree,tree.RightOf(ndHd),cx,x1,y0+DY,cx,cy,highlight);
+}
+
+void RenderTree(const BinaryTree<int,int> &tree,typename BinaryTree<int,int>::NodeHandle highlight)
+{
+	int wid,hei;
+	FsGetWindowSize(wid,hei);
+	RenderTreeNode(tree,tree.Root(),0,wid,0,wid/2,0,highlight);
+}
+
+
+typename BinaryTree<int,int>::NodeHandle FindPickedTreeNode(
+   const BinaryTree<int,int> &tree,
+   typename BinaryTree<int,int>::NodeHandle ndHd,
+   int x0,int x1,int y0,int mx,int my)
+{
+	if(true==ndHd.IsNull())
+	{
+		BinaryTree<int,int>::NodeHandle nullHd;
+		return nullHd;
+	}
+
+	if(x0<=mx && mx<x1 && y0<=my && my<y0+DY)
+	{
+		return ndHd;
+	}
+
+	int cx=(x0+x1)/2;
+	auto found=FindPickedTreeNode(tree,tree.LeftOf(ndHd),x0,cx,y0+DY,mx,my);
+	if(true==found.IsNotNull())
+	{
+		return found;
+	}
+	return FindPickedTreeNode(tree,tree.RightOf(ndHd),cx,x1,y0+DY,mx,my);
+}
+
+typename BinaryTree<int,int>::NodeHandle PickedNdHd(
+	BinaryTree<int,int> &tree,
+	int mx,int my)
+{
+	int wid,hei;
+	FsGetWindowSize(wid,hei);
+	auto ndHd=FindPickedTreeNode(tree,tree.Root(),0,wid,0,mx,my);
+	return ndHd;
+}
+
+int main(void)
+{
+	BinaryTree <int,int> tree;
+
+	srand(time(nullptr));
+
+	for(int i=0; i<40; ++i)
+	{
+		int r=rand()%100;
+		tree.Insert(r,0);
+	}
+
+	for(auto hd=tree.FindFirst(); true==hd.IsNotNull(); hd=tree.FindNext(hd))
+	{
+		std::cout << "+ " << tree.GetKey(hd) << std::endl;
+	}
+
+
+	FsOpenWindow(0,0,800,600,1);
+
+	for(;;)
+	{
+		FsPollDevice();
+		auto key=FsInkey();
+		if(FSKEY_ESC==key)
+		{
+			break;
+		}
+
+		int lb,mb,rb,mx,my;
+		auto evt=FsGetMouseEvent(lb,mb,rb,mx,my);
+		auto pickedNdHd=PickedNdHd(tree,mx,my);
+		if(true==pickedNdHd.IsNotNull())
+		{
+			std::cout << tree.GetKey(pickedNdHd) << std::endl;
+		}
+
+		if(FSKEY_DEL==key && true==pickedNdHd.IsNotNull())
+		{
+			tree.Delete(pickedNdHd);
+		}
+		if(FSKEY_L==key && true==pickedNdHd.IsNotNull())
+		{
+			tree.RotateLeft(pickedNdHd);
+		}
+		if(FSKEY_R==key && true==pickedNdHd.IsNotNull())
+		{
+			tree.RotateRight(pickedNdHd);
+		}
+		if(FSKEY_T==key)
+		{
+			tree.TreeToVine();
+		}
+		if(FSKEY_V==key)
+		{
+			tree.VineToTree();
+		}
+		// If the user presses the space key, add a new random node to the tree between 0 and 99. After adding a bunch of nodes, make sure to rebalance the tree.
+		if (FSKEY_SPACE == key)
+		{
+			int r = rand() % 100;
+			tree.Insert(r, 0);
+		}
+		// when the user presses the Enter key, visit all nodes and randomly apply left or right rotation to the nodes to make the tree off-balance.
+		if (FSKEY_ENTER == key)
+		{
+			for (auto hd = tree.FindFirst(); true == hd.IsNotNull(); hd = tree.FindNext(hd))
+			{
+				if (rand() % 2 == 0)
+				{
+					tree.RotateLeft(hd);
+				}
+				else
+				{
+					tree.RotateRight(hd);
+				}
+			}
+		}
+
+		int wid,hei;
+		FsGetWindowSize(wid,hei);
+		glViewport(0,0,wid,hei);
+
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(0,wid,hei,0,-1,1);
+
+		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+		RenderTree(tree,pickedNdHd);
+		FsSwapBuffers();
+	}
+
+	return 0;
+}

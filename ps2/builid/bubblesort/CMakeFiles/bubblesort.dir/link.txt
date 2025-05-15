@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/bubblesort.dir/bubblesort.cpp.o  -o bubblesort  ../public/fssimplewindow/src/libfssimplewindow.a ../public/ysbitmapfont/src/libysbitmapfont.a -lGL -lGLU -lX11 ../public/ysgl/src/libysgl.a -lpthread -static-libstdc++ -static-libgcc 

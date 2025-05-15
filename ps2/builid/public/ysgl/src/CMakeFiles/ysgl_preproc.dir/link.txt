@@ -1,0 +1,1 @@
+/usr/bin/c++   -Wl,--no-as-needed  -rdynamic CMakeFiles/ysgl_preproc.dir/glsl_src/preproc.cpp.o  -o ../../../exe/ysgl_preproc  ../../ysclass/src/libysclass.a 

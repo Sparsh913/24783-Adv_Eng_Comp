@@ -1,0 +1,2 @@
+add_executable(bubblesort MACOSX_BUNDLE bubblesort.cpp)
+target_link_libraries(bubblesort fssimplewindow ysbitmapfont)

@@ -1,0 +1,1 @@
+/usr/bin/c++    -rdynamic CMakeFiles/fssimplewindow_template.dir/main.cpp.o  -o fssimplewindow_template  ../src/libfssimplewindow.a -lGL -lGLU -lX11 

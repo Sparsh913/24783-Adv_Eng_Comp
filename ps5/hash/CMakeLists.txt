@@ -1,0 +1,1 @@
+add_library(hash hashtable.h hashtable.cpp)

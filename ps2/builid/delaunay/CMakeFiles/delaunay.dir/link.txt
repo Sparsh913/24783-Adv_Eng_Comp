@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/delaunay.dir/delaunay.cpp.o  -o delaunay  ../public/fssimplewindow/src/libfssimplewindow.a ../public/ysbitmapfont/src/libysbitmapfont.a ../public/ysclass/src/libysclass.a -lGL -lGLU -lX11 ../public/ysgl/src/libysgl.a -lpthread -static-libstdc++ -static-libgcc 

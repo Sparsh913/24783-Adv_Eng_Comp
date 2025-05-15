@@ -1,0 +1,1 @@
+/usr/bin/c++    -rdynamic CMakeFiles/ysmakealphamask.dir/ysmakealphamask.cpp.o  -o ysmakealphamask  ../../ysclass/src/libysclass.a ../src/libysbitmap.a 
